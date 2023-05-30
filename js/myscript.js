@@ -190,7 +190,7 @@ function start() {
     //     return;
     // }
 
-    combineIATAPairs();
+    // combineIATAPairs();
     // console.log(IATA_PAIR);
     // return;
     PRICE_ALERT = $('#priceAlert').val();
