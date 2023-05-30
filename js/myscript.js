@@ -185,10 +185,10 @@ function start() {
         return;
     }
 
-    if (!CSV_DATA.flight1 || !CSV_DATA.flight1.length || !CSV_DATA.flight2 || !CSV_DATA.flight2.length) {
-        alert("Please import IATA Data.");
-        return;
-    }
+    // if (!CSV_DATA.flight1 || !CSV_DATA.flight1.length || !CSV_DATA.flight2 || !CSV_DATA.flight2.length) {
+    //     alert("Please import IATA Data.");
+    //     return;
+    // }
 
     combineIATAPairs();
     // console.log(IATA_PAIR);
