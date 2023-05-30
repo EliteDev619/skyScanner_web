@@ -221,6 +221,8 @@ function start() {
     //     {from : $('input[name=from_iata]', '.flight3').val(), to : $('input[name=to_iata]', '.flight3').val()},
     // ]
     // query.queryLegs = getQueryLegs(dates, temp);
+    console.log('ALL Combination =>', IATA_PAIR);
+    console.log('One Pair => ' ,IATA_PAIR[0]);
     query.queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
 
     query.adults = $('#adultNumber').val();
