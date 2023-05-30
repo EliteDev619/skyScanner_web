@@ -215,8 +215,13 @@ function start() {
     //     {from : "MAD", to : "SKG"},
     //     {from : "SKG", to : "IST"},
     // ]
-    // query.queryLegs = getQueryLegs(dates, temp);
-    query.queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
+    let temp = [
+        {from : $('input[name=from_iata]', '.flight1').val(), to : $('input[name=to_iata]', '.flight1').val()},
+        {from : $('input[name=from_iata]', '.flight2').val(), to : $('input[name=to_iata]', '.flight2').val()},
+        {from : $('input[name=from_iata]', '.flight3').val(), to : $('input[name=to_iata]', '.flight3').val()},
+    ]
+    query.queryLegs = getQueryLegs(dates, temp);
+    // query.queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
 
     query.adults = $('#adultNumber').val();
     if (query.adults == 0) {
