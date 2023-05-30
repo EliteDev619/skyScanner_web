@@ -185,12 +185,12 @@ function start() {
         return;
     }
 
-    // if (!CSV_DATA.flight1 || !CSV_DATA.flight1.length || !CSV_DATA.flight2 || !CSV_DATA.flight2.length) {
-    //     alert("Please import IATA Data.");
-    //     return;
-    // }
+    if (!CSV_DATA.flight1 || !CSV_DATA.flight1.length || !CSV_DATA.flight2 || !CSV_DATA.flight2.length) {
+        alert("Please import IATA Data.");
+        return;
+    }
 
-    // combineIATAPairs();
+    combineIATAPairs();
     // console.log(IATA_PAIR);
     // return;
     PRICE_ALERT = $('#priceAlert').val();
@@ -215,13 +215,13 @@ function start() {
     //     {from : "MAD", to : "SKG"},
     //     {from : "SKG", to : "IST"},
     // ]
-    let temp = [
-        {from : $('input[name=from_iata]', '.flight1').val(), to : $('input[name=to_iata]', '.flight1').val()},
-        {from : $('input[name=from_iata]', '.flight2').val(), to : $('input[name=to_iata]', '.flight2').val()},
-        {from : $('input[name=from_iata]', '.flight3').val(), to : $('input[name=to_iata]', '.flight3').val()},
-    ]
-    query.queryLegs = getQueryLegs(dates, temp);
-    // query.queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
+    // let temp = [
+    //     {from : $('input[name=from_iata]', '.flight1').val(), to : $('input[name=to_iata]', '.flight1').val()},
+    //     {from : $('input[name=from_iata]', '.flight2').val(), to : $('input[name=to_iata]', '.flight2').val()},
+    //     {from : $('input[name=from_iata]', '.flight3').val(), to : $('input[name=to_iata]', '.flight3').val()},
+    // ]
+    // query.queryLegs = getQueryLegs(dates, temp);
+    query.queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
 
     query.adults = $('#adultNumber').val();
     if (query.adults == 0) {
@@ -361,15 +361,17 @@ function getCheapestValue(data) {
     });
 
     console.log(prices);
+    let fitCount = 0;
     prices.forEach(row => {
         let amount = Math.ceil(row.data[0].price.amount / 1000);
         if(amount < PRICE_ALERT){
+            fitCount++;
             // console.log(row);
             let html = '';
             if(row.data.length == 1){
-                html = '<div class="alert alert-success" role="alert"><span>'+amount+'EUR. There is '+row.data.length+' deal. </span>';
+                html = '<div class="alert alert-success" role="alert"><span>'+amount+'GBP. There is '+row.data.length+' deal. </span>';
             } else {
-                html = '<div class="alert alert-success" role="alert"><span>'+amount+'EUR. There are '+row.data.length+' deals. </span>';
+                html = '<div class="alert alert-success" role="alert"><span>'+amount+'GBP. There are '+row.data.length+' deals. </span>';
             }
 
             row.data.forEach(temp => {
@@ -380,4 +382,7 @@ function getCheapestValue(data) {
             $('.priceAlertDiv').append(html);
         }
     });
+
+    $('#res_cnt').text(prices.length);
+    $('#fit_cnt').text(fitCount);
 }
