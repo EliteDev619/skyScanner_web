@@ -425,7 +425,7 @@ function getCheapestValue(data, strPair) {
 
     console.log(prices);
     $('.alerts').append('<hr>');
-    $('#priceAlertDiv').html('');
+    // $('#priceAlertDiv').html('');
     let html = '<div id="priceAlertDiv">';
 
     let fitCount = 0;
