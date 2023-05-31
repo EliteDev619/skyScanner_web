@@ -345,7 +345,7 @@ async function apiCalls(dates, query) {
 
     (async () => {
         // number of concurrent requests in one batch
-        const batchSize = 2;
+        const batchSize = 1;
         // request counter
         let curReq = 0;
         // as long as there are items in the list continue to form batches
