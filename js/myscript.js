@@ -201,7 +201,7 @@ function start() {
         return;
     }
 
-    let param = new Object();
+    // let param = new Object();
     let query = {};
     query.market = "UK";
     query.locale = "en-GB";
@@ -257,24 +257,25 @@ function start() {
     query.includeSustainabilityData = false;
 
     console.log('ALL Combination =>', IATA_PAIR);
-    
+
     // let queryLegs = getQueryLegs(dates, IATA_PAIR[0]);
     // query.queryLegs = queryLegs;
     // param.query = query;
     // getFlightResult(param);
- 
-    IATA_PAIR.forEach(item => {
-        query.queryLegs = {};
-        console.log('One Pair => ' ,item);
-        let queryLegs = getQueryLegs(dates, item);
+
+    apiCalls(dates, query);
+    // IATA_PAIR.forEach(item => {
+    //     query.queryLegs = {};
+    //     console.log('One Pair => ' ,item);
+    //     let queryLegs = getQueryLegs(dates, item);
     
-        let strPair = '['+JSON.stringify(item[0])+', '+JSON.stringify(item[1])+', '+JSON.stringify(item[2])+']';
-        // console.log(queryLegs);
-        query.queryLegs = queryLegs;
-        param.query = query;
-        // console.log(param);
-        getFlightResult(param, strPair);
-    });
+    //     let strPair = '['+JSON.stringify(item[0])+', '+JSON.stringify(item[1])+', '+JSON.stringify(item[2])+']';
+    //     // console.log(queryLegs);
+    //     query.queryLegs = queryLegs;
+    //     param.query = query;
+    //     // console.log(param);
+    //     getFlightResult(param, strPair);
+    // });
 }
 
 function start1() {
@@ -339,7 +340,50 @@ function start1() {
     getFlightResult(param);
 }
 
-function getFlightResult(param, strPair){
+async function apiCalls(dates, query) {
+    const waitForMs = (ms) => new Promise((resolve, reject) => setTimeout(() => resolve(), ms));
+
+    (async () => {
+        // number of concurrent requests in one batch
+        const batchSize = 2;
+        // request counter
+        let curReq = 0;
+        // as long as there are items in the list continue to form batches
+        while (curReq < IATA_PAIR.length) {
+            let param = {};
+            // a batch is either limited by the batch size or it is smaller than the batch size when there are less items required
+            const end = IATA_PAIR.length < curReq + batchSize ? IATA_PAIR.length : curReq + batchSize;
+            // we know the number of concurrent request so reserve memory for this
+            const concurrentReq = new Array(batchSize);
+            // issue one request for each item in the batch
+            for (let index = curReq; index < end; index++) {
+                let item = IATA_PAIR[index];
+                query.queryLegs = {};
+                console.log('One Pair => ', item);
+                let queryLegs = getQueryLegs(dates, item);
+
+                let strPair = '[' + JSON.stringify(item[0]) + ', ' + JSON.stringify(item[1]) + ', ' + JSON.stringify(item[2]) + ']';
+                query.queryLegs = queryLegs;
+                param.query = query;
+                concurrentReq.push(getFlightResult(param, strPair))
+                console.log(`sending request ${curReq}...`)
+                curReq++;
+            }
+            // wait until all promises are done or one promise is rejected
+            await Promise.all(concurrentReq);
+            console.log(`requests ${curReq - batchSize}-${curReq} done.`)
+            if (curReq + 1 < IATA_PAIR.length) {
+                // after requests have returned wait for one second
+                console.log(`[${new Date().toISOString()}] Waiting a second before sending next requests...`)
+                await waitForMs(3000);
+                console.log(`[${new Date().toISOString()}] At least one second has gone.`)
+            }
+
+        }
+    })();
+}
+
+function getFlightResult(param, strPair) {
     var proxy = 'https://cors-anywhere.herokuapp.com/';
     let url = 'https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/create';
 
@@ -353,8 +397,6 @@ function getFlightResult(param, strPair){
             xhr.setRequestHeader('x-api-key', 'fl687154418168043982723635787130');
         }
     }).done(function (data) {
-        // console.log(data);
-
         url = `https://partners.api.skyscanner.net/apiservices/v3/flights/live/search/poll/${data.sessionToken}`;
         $.ajax({
             type: 'POST',
@@ -389,18 +431,18 @@ function getCheapestValue(data, strPair) {
     let fitCount = 0;
     prices.forEach(row => {
         let amount = Math.ceil(row.data[0].price.amount / 1000);
-        if(amount < PRICE_ALERT){
+        if (amount < PRICE_ALERT) {
             fitCount++;
             // console.log(row);
             // let html = '';
-            if(row.data.length == 1){
-                html += '<div class="alert alert-success" role="alert"><span>'+amount+'GBP. There is '+row.data.length+' deal. </span>';
+            if (row.data.length == 1) {
+                html += '<div class="alert alert-success" role="alert"><span>' + amount + 'GBP. There is ' + row.data.length + ' deal. </span>';
             } else {
-                html += '<div class="alert alert-success" role="alert"><span>'+amount+'GBP. There are '+row.data.length+' deals. </span>';
+                html += '<div class="alert alert-success" role="alert"><span>' + amount + 'GBP. There are ' + row.data.length + ' deals. </span>';
             }
 
             row.data.forEach(temp => {
-                html += '<a href="'+temp.items[0].deepLink+'"> Detail ... </a>';
+                html += '<a href="' + temp.items[0].deepLink + '"> Detail ... </a>';
             });
 
             html += '</div>';
@@ -408,7 +450,7 @@ function getCheapestValue(data, strPair) {
         }
     });
     html += '</div>';
-    $('.alerts').append('<div class="col m-2">Pair : '+strPair+'. All result count is <span>'+prices.length+'</span>. Fit result count is <span>'+fitCount+'</span></div>');
+    $('.alerts').append('<div class="col m-2">Pair : ' + strPair + '. All result count is <span>' + prices.length + '</span>. Fit result count is <span>' + fitCount + '</span></div>');
     $('.alerts').append(html);
 
     // $('#res_cnt').text(prices.length);
