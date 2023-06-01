@@ -353,7 +353,6 @@ function start() {
     query.currency = "GBP";
 
     let dates = combineDatePairs(flight1Date, flight2Date, flight3Date);
-    console.log(dates); return;
     if(dates.length == 0){
         alert("Please set date again, query legs date should be ascending order.");
     }
